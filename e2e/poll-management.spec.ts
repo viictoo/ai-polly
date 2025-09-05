@@ -129,7 +129,7 @@ test.describe('Poll Management', () => {
     await maliciousPage.goto(`http://localhost:3000/polls/${victimPollId}/edit`);
 
     // Expect a redirect to /polls or an unauthorized error message
-    await maliciousPage.waitForURL(/\/polls\/[^/]+$/ | \/\/polls$ | \/login$/);
+    await maliciousPage.waitForURL(/^(?:\/polls\/[^/]+$|\/polls$|\/login$)/);
     const currentUrl = maliciousPage.url();
     expect(currentUrl).not.toContain('edit');
     // Depending on error handling, check for specific messages or redirects
@@ -178,7 +178,7 @@ test.describe('Poll Management', () => {
     const victimPollId = href ? href.split('/').pop()! : '';
 
     // Create a fresh page for the malicious user
-    const maliciousPage = await request.newContext().newPage();
+    const maliciousPage = await page.context().newPage();
     const maliciousUserEmail = `malicious-del-${Date.now()}@example.com`;
     const maliciousUserPassword = 'securepass123';
     const maliciousUserName = 'Malicious Deleter';

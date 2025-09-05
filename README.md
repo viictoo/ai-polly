@@ -1,6 +1,6 @@
 # ALX Polly: A Polling Application
 
-Welcome to ALX Polly, a full-stack polling application built with Next.js, TypeScript, and Supabase. This project serves as a practical learning ground for modern web development concepts, with a special focus on identifying and fixing common security vulnerabilities.
+Welcome to ALX Polly, a full-stack polling application built with Next.js, TypeScript, and Supabase. This project serves as a practical learning ground on identifying and fixing common security vulnerabilities.
 
 ## About the Application
 
@@ -42,20 +42,6 @@ As a developer, writing functional code is only half the battle. Ensuring that t
     -   Write secure, efficient, and clean code to patch the security holes.
     -   Ensure that your fixes do not break existing functionality for legitimate users.
 
-### Where to Start?
-
-A good security audit involves both static code analysis and dynamic testing. Here’s a suggested approach:
-
-1.  **Familiarize Yourself with the Code**:
-    -   Start with `app/lib/actions/` to understand how the application interacts with the database.
-    -   Explore the page routes in the `app/(dashboard)/` directory. How is data displayed and managed?
-    -   Look for hidden or undocumented features. Are there any pages not linked in the main UI?
-
-2.  **Use Your AI Assistant**:
-    -   This is an open-book test. You are encouraged to use AI tools to help you.
-    -   Ask your AI assistant to review snippets of code for security issues.
-    -   Describe a feature's behavior to your AI and ask it to identify potential attack vectors.
-    -   When you find a vulnerability, ask your AI for the best way to patch it.
 
 ---
 
@@ -93,7 +79,6 @@ npm run dev
 
 The application will be available at `http://localhost:3000`.
 
-Good luck, engineer! This is your chance to step into the shoes of a security professional and make a real impact on the quality and safety of this application. Happy hunting!
 
 ## 🔒 Security Audit Findings and Remedies
 

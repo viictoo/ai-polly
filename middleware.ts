@@ -5,7 +5,8 @@ import { NextResponse } from 'next/server'
 export async function middleware(request: NextRequest) {
   let supabaseResponse = await updateSession(request)
 
-  const { data: { user } } = await (await import('@/lib/supabase/server')).createClient().auth.getUser();
+  const supabase = await (await import('@/lib/supabase/server')).createClient();
+  const { data: { user } } = await supabase.auth.getUser();
 
   // Redirect authenticated users from login/register pages
   if (user && (request.nextUrl.pathname.startsWith('/login') || request.nextUrl.pathname.startsWith('/register'))) {

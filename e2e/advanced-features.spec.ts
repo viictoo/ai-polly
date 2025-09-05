@@ -54,8 +54,8 @@ test.describe('Advanced Features (Voting & Admin)', () => {
     await page.click('button[type="submit"]');
     await page.waitForURL('/polls');
 
-    const pollCard = page.locator('h2:has-text("Which fruit is best?").locator('xpath=ancestor::div[contains(@class, "border-l-4")]');
-    const viewLink = pollCard.locator('a[href^="/polls/"]').first();
+    const pollCard = page.locator('h2:has-text(\"Which fruit is best?\")').locator('xpath=ancestor::div[contains(@class, \'border-l-4\')]');
+    const viewLink = pollCard.locator('a[href^=\"/polls/\"]').first();
     const href = await viewLink.getAttribute('href');
     createdPollId = href ? href.split('/').pop()! : '';
     expect(createdPollId).not.toBeNull();
@@ -115,8 +115,8 @@ test.describe('Advanced Features (Voting & Admin)', () => {
     });
 
     // Click delete button for the normal user's poll
-    const pollCard = page.locator('h2:has-text("Which fruit is best?").locator('xpath=ancestor::div[contains(@class, "border-l-4")]');
-    await pollCard.locator('button:has-text("Delete")').click();
+    const pollCard = page.locator('h2:has-text(\"Which fruit is best?\")').locator('xpath=ancestor::div[contains(@class, \'border-l-4\')]');
+    await pollCard.locator('button:has-text(\"Delete\")').click();
     await page.waitForTimeout(500); // Give time for reload and deletion
 
     // Verify the poll is no longer displayed
