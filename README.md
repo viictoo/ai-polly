@@ -140,3 +140,49 @@ ADMIN_USER_ID="your_admin_supabase_user_id_here"
 ```
 
 ---
+
+## ✅ Verification: End-to-End Tests
+
+To ensure that the implemented security fixes did not introduce regressions and that existing functionality for legitimate users remains intact, a comprehensive suite of End-to-End (E2E) tests has been added using [Playwright](https://playwright.dev/).
+
+### Test Setup:
+
+1.  **Installation:** Playwright was added as a development dependency.
+2.  **Configuration:** A `playwright.config.ts` file was created at the project root to configure Playwright with Next.js, defining the test directory (`./e2e`), base URL, and supported browsers.
+3.  **Test Script:** An `e2e` script was added to `package.json` to facilitate easy execution of the tests: `npm run e2e`.
+
+### Test Coverage:
+
+The E2E tests cover the following critical user flows and security aspects:
+
+*   **User Authentication:**
+    *   Successful user registration and login.
+    *   Redirection of authenticated users attempting to access `/login` or `/register` to `/polls`.
+    *   Client-side validation errors for missing or invalid credentials during login and registration (e.g., invalid email format, short passwords, mismatched passwords).
+
+*   **Poll Management:**
+    *   Authenticated users can successfully create a poll.
+    *   Authenticated users can view their own polls.
+    *   Authenticated users can edit their own polls.
+    *   Prevention of unauthorized users from viewing or editing other users' polls.
+    *   Authenticated users can delete their own polls.
+    *   Prevention of unauthorized users from deleting other users' polls.
+
+*   **Voting System:**
+    *   Users (authenticated or unauthenticated, depending on the `submitVote` configuration) can successfully vote on a poll.
+
+*   **Admin Functionality:**
+    *   An administrator can successfully log in and access the `/admin` panel.
+    *   The admin can view all polls in the system.
+    *   The admin can delete any poll, including those created by other users.
+    *   Non-admin users are correctly redirected when attempting to access the `/admin` page.
+
+### How to Run Tests:
+
+To execute the E2E test suite, ensure your development server is running and then use the following command:
+
+```bash
+npm run e2e
+```
+
+This command will launch the Next.js development server (if not already running) and execute all tests located in the `e2e/` directory across configured browsers. Test reports will be generated upon completion.
