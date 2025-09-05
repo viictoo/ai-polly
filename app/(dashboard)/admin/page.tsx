@@ -1,7 +1,6 @@
-"use client";
-
-import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
+import { deletePoll } from "@/app/lib/actions/poll-actions";
+import { createClient } from "@/lib/supabase/server"; // Use server-side client
+import { redirect } from "next/navigation";
 import {
   Card,
   CardContent,
@@ -9,8 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { deletePoll } from "@/app/lib/actions/poll-actions";
-import { createClient } from "@/lib/supabase/client";
+import { Button } from "@/components/ui/button";
 
 interface Poll {
   id: string;
@@ -20,42 +18,27 @@ interface Poll {
   options: string[];
 }
 
-export default function AdminPage() {
-  const [polls, setPolls] = useState<Poll[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [deleteLoading, setDeleteLoading] = useState<string | null>(null);
+export default async function AdminPage() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  useEffect(() => {
-    fetchAllPolls();
-  }, []);
+  // IMPORTANT: Replace with a secure method to determine admin status
+  // For now, we'll use an environment variable for a single admin user ID.
+  // In a real application, you'd likely have a 'roles' table or similar.
+  if (!user || user.id !== process.env.ADMIN_USER_ID) {
+    redirect("/login"); // Redirect to login if not authenticated or not admin
+  }
 
-  const fetchAllPolls = async () => {
-    const supabase = createClient();
+  const { data: polls, error } = await supabase
+    .from("polls")
+    .select("*")
+    .order("created_at", { ascending: false });
 
-    const { data, error } = await supabase
-      .from("polls")
-      .select("*")
-      .order("created_at", { ascending: false });
-
-    if (!error && data) {
-      setPolls(data);
-    }
-    setLoading(false);
-  };
-
-  const handleDelete = async (pollId: string) => {
-    setDeleteLoading(pollId);
-    const result = await deletePoll(pollId);
-
-    if (!result.error) {
-      setPolls(polls.filter((poll) => poll.id !== pollId));
-    }
-
-    setDeleteLoading(null);
-  };
-
-  if (loading) {
-    return <div className="p-6">Loading all polls...</div>;
+  if (error) {
+    console.error("Error fetching polls for admin:", error.message);
+    return <div className="p-6">Error loading polls.</div>;
   }
 
   return (
@@ -98,10 +81,15 @@ export default function AdminPage() {
                 <Button
                   variant="destructive"
                   size="sm"
-                  onClick={() => handleDelete(poll.id)}
-                  disabled={deleteLoading === poll.id}
+                  onClick={async () => { // Make onClick handler async
+                    "use client"; // This part of the code needs to be client-side due to interaction
+                    if (confirm("Are you sure you want to delete this poll?")) {
+                      await deletePoll(poll.id);
+                      window.location.reload(); // Reload to reflect changes
+                    }
+                  }}
                 >
-                  {deleteLoading === poll.id ? "Deleting..." : "Delete"}
+                  Delete
                 </Button>
               </div>
             </CardHeader>

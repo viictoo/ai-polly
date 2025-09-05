@@ -63,14 +63,32 @@ export async function getUserPolls() {
 // GET POLL BY ID
 export async function getPollById(id: string) {
   const supabase = await createClient();
-  const { data, error } = await supabase
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError) {
+    return { poll: null, error: userError.message };
+  }
+
+  const { data: poll, error } = await supabase
     .from("polls")
     .select("*")
     .eq("id", id)
     .single();
 
-  if (error) return { poll: null, error: error.message };
-  return { poll: data, error: null };
+  if (error) {
+    return { poll: null, error: error.message };
+  }
+
+  // Check if the user is the owner or an admin
+  // Using environment variable for admin ID for now, similar to admin page
+  if (!user || (user.id !== poll.user_id && user.id !== process.env.ADMIN_USER_ID)) {
+    return { poll: null, error: "Unauthorized access to poll." };
+  }
+
+  return { poll: poll, error: null };
 }
 
 // SUBMIT VOTE
@@ -98,6 +116,34 @@ export async function submitVote(pollId: string, optionIndex: number) {
 // DELETE POLL
 export async function deletePoll(id: string) {
   const supabase = await createClient();
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError) {
+    return { error: userError.message };
+  }
+  if (!user) {
+    return { error: "You must be logged in to delete a poll." };
+  }
+
+  // First, retrieve the poll to check ownership
+  const { data: poll, error: fetchError } = await supabase
+    .from("polls")
+    .select("user_id")
+    .eq("id", id)
+    .single();
+
+  if (fetchError || !poll) {
+    return { error: "Poll not found or access denied." };
+  }
+
+  // Check if the user is the owner or an admin
+  if (user.id !== poll.user_id && user.id !== process.env.ADMIN_USER_ID) {
+    return { error: "You are not authorized to delete this poll." };
+  }
+
   const { error } = await supabase.from("polls").delete().eq("id", id);
   if (error) return { error: error.message };
   revalidatePath("/polls");
